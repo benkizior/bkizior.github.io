@@ -70,15 +70,15 @@
                         var progress = Math.round((event.loaded / event.total) * 100); // Calculate upload progress
                         document.querySelector('.progress').style.width = progress + '%'; // Update progress bar width
                     })
-                    // .send(function(err, data) {
-                    //     if (err) {
-                    //         console.log('Error!', err);
-                    //         alert('An error occurred while uploading the photo: ' + fileName);
-                    //     } else {
-                    //         console.log('Upload successful!', data);
-                    //         alert('Photo uploaded successfully: ' + fileName);
-                    //     }
-                    // });
+                    .send(function(err, data) {
+                        if (err) {
+                            console.log('Error!', err);
+                            // alert('An error occurred while uploading the photo: ' + fileName);
+                        } else {
+                            console.log('Upload successful!', data);
+                            // alert('Photo uploaded successfully: ' + fileName);
+                        }
+                    });
             }
             
             // Iterate over each selected file and upload it
