@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HEF5B9GR5Z"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', 'G-HEF5B9GR5Z');
+    </script>
+    <!-- CLICKY -->
+    <script async src="//static.getclicky.com/101411684.js"></script>
+    <noscript><p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/101411684ns.gif" /></p></noscript>
+    <!-- SMARTLOOK -->
+    <script type='text/javascript'>
+      window.smartlook||(function(d) {
+        var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
+        var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
+        c.charset='utf-8';c.src='https://web-sdk.smartlook.com/recorder.js';h.appendChild(c);
+        })(document);
+        smartlook('init', '353ed13840afdc0e227f9d5c4ec3f59c5d340171', { region: 'eu' });
+    </script>
+        <meta name="robots" content="noindex">
+        <title>All Photos</title>
+        <link rel="icon" href="golf-ball.png">
+    <meta charset="UTF-8">
+    <style>
+        .image-container {
+            display: inline-block;
+            margin: 10px;
+        }
+        .image-container img {
+            max-width: 300px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Random Image Gallery</h1>
+    <div id="image-gallery"></div>
+
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.977.0.min.js"></script>
+    <script>
+        // Configure AWS SDK with your credentials and bucket information
+        AWS.config.update({
+            accessKeyId: 'AKIAV22HHDNGN2C6ZYOE',
+            secretAccessKey: 'hss4oaJKgQdSlTLv3Hzp+FTjd/GVB9vrR8X0YWYX',
+            region: 'us-east-2'
+        });
+
+        var bucketName = 'benfa22';
+        var s3 = new AWS.S3();
+
+        // Function to display the images in a random order
+        function displayRandomImages(objects) {
+            var imageGallery = document.getElementById('image-gallery');
+
+            // Shuffle the array of objects randomly
+            var shuffledObjects = objects.sort(() => Math.random() - 0.5);
+
+            // Iterate over the shuffled objects and create image elements for each photo
+            shuffledObjects.forEach(function(object) {
+                var photoUrl = s3.getSignedUrl('getObject', { Bucket: bucketName, Key: object.Key });
+                var imageContainer = document.createElement('div');
+                imageContainer.className = 'image-container';
+                var img = document.createElement('img');
+                img.src = photoUrl;
+                imageContainer.appendChild(img);
+                imageGallery.appendChild(imageContainer);
+            });
+        }
+
+        // Function to get all objects (photos) in the bucket
+        function getBucketObjects() {
+            var params = {
+                Bucket: bucketName
+            };
+
+            s3.listObjectsV2(params, function(err, data) {
+                if (err) {
+                    console.log('Error!', err);
+                } else {
+                    var objects = data.Contents;
+                    displayRandomImages(objects);
+                }
+            });
+        }
+
+        // Fetch the photos and display them in a random order
+        getBucketObjects();
+    </script>
+</body>
+</html>
