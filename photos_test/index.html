@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Photos to AWS S3</title>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.977.0.min.js"></script>
+    <style>
+        #progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f2f2f2;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        #progress-bar .progress {
+            height: 100%;
+            width: 0;
+            background-color: #4caf50;
+            border-radius: 5px;
+            transition: width 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload Photos to AWS S3</h1>
+    <form id="upload-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name">
+        <br>
+        <label for="photos">Select Photos:</label>
+        <input type="file" id="photos" name="photos" accept="image/*" multiple>
+        <br>
+        <input type="submit" value="Upload">
+    </form>
+    <div id="progress-bar">
+        <div class="progress"></div>
+    </div>
+    <script>
+        // Configure AWS SDK with your credentials and bucket information
+        AWS.config.update({
+            accessKeyId: 'AKIAV22HHDNGN2C6ZYOE',
+            secretAccessKey: 'hss4oaJKgQdSlTLv3Hzp+FTjd/GVB9vrR8X0YWYX',
+            region: 'us-east-2'
+        });
+
+        // Function to handle form submission
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            var name = document.getElementById('name').value.trim();
+            var files = document.getElementById('photos').files;
+            var bucketName = 'benfa22';
+            var s3 = new AWS.S3();
+
+            // Function to upload each file
+            function uploadFile(file) {
+                var fileName = name + '_' + file.name; // Append name to the front of the file name
+
+                // Prepare the parameters for the S3 upload
+                var params = {
+                    Bucket: bucketName,
+                    Key: fileName,
+                    Body: file,
+                    ACL: 'public-read'
+                };
+
+                // Upload the file to S3
+                s3.upload(params)
+                    .on('httpUploadProgress', function(event) {
+                        var progress = Math.round((event.loaded / event.total) * 100); // Calculate upload progress
+                        document.querySelector('.progress').style.width = progress + '%'; // Update progress bar width
+                    })
+                    // .send(function(err, data) {
+                    //     if (err) {
+                    //         console.log('Error!', err);
+                    //         alert('An error occurred while uploading the photo: ' + fileName);
+                    //     } else {
+                    //         console.log('Upload successful!', data);
+                    //         alert('Photo uploaded successfully: ' + fileName);
+                    //     }
+                    // });
+            }
+            
+            // Iterate over each selected file and upload it
+            for (var i = 0; i < files.length; i++) {
+                uploadFile(files[i]);
+            }
+        });
+    </script>
+</body>
+</html>
