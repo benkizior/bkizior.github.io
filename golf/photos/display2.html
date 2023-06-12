@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Random S3 Bucket Images</title>
+  <style>
+    img {
+      max-width: 300px;
+      max-height: 300px;
+    }
+  </style>
+  <script>
+    // Function to shuffle an array
+    function shuffle(array) {
+      for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+      }
+      return array;
+    }
+
+    // Function to display images
+    function displayImages(images) {
+      var container = document.getElementById('image-container');
+      container.innerHTML = ''; // Clear previous images
+
+      images.forEach(function (image) {
+        var imgElement = document.createElement('img');
+        imgElement.src = image;
+        container.appendChild(imgElement);
+      });
+    }
+
+    // Fetch image URLs from S3 bucket
+    function fetchImages() {
+      // Replace 'YOUR_BUCKET_NAME' with your actual S3 bucket name
+      var bucketName = 'benfa22';
+      
+      // Replace 'YOUR_S3_REGION' with your actual S3 bucket region
+      var region = 'us-east-2';
+      
+      // Replace 'YOUR_AWS_ACCESS_KEY' with your actual AWS access key
+      var accessKey = 'AKIAV22HHDNGN2C6ZYOE';
+      
+      // Replace 'YOUR_AWS_SECRET_KEY' with your actual AWS secret key
+      var secretKey = 'hss4oaJKgQdSlTLv3Hzp+FTjd/GVB9vrR8X0YWYX';
+
+      var s3 = new AWS.S3({
+        accessKeyId: accessKey,
+        secretAccessKey: secretKey,
+        region: region
+      });
+
+      var params = {
+        Bucket: bucketName
+      };
+
+      s3.listObjectsV2(params, function (err, data) {
+        if (err) {
+          console.log(err, err.stack);
+        } else {
+          var images = data.Contents.map(function (object) {
+            return s3.getSignedUrl('getObject', {
+              Bucket: bucketName,
+              Key: object.Key
+            });
+          });
+
+          shuffle(images); // Shuffle the array of image URLs
+          displayImages(images); // Display the images on the webpage
+        }
+      });
+    }
+  </script>
+</head>
+<body onload="fetchImages()">
+  <h1>Random S3 Bucket Images</h1>
+  <div id="image-container"></div>
+
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.919.0.min.js"></script>
+</body>
+</html>
